@@ -48,13 +48,7 @@ dyadRobust <- function(fit,dat,dyadid,egoid,alterid,parallel = F) {
   dcrUp <- dyad.se.helper(fit,dyad.mat,iUp = index[1],sw)
   
   if(parallel) {
-    require(doParallel)
-    require(foreach)
-    ncores <- parallel::detectCores()
-    cl <- makeCluster(ncores - 1,outfile = "workerout")
-    registerDoParallel(cl)
-    tmp <- foreach(i = 2:length(index),.packages = c('data.table','sandwich')) %dopar% dyad.se.helper(fit,dyad.mat,index[i],sw)
-    stopCluster(cl)
+    tmp <- mclapply(2:length(index), function (i) { dyad.se.helper(fit,dyad.mat,index[i],sw) })
   } else {
     pb <- progress_bar$new(total = length(index))
     tmp <- vector(mode = "list",length = length(index)-1)
